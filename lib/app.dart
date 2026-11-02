@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'providers/auth_provider.dart';
 import 'providers/backend_status_provider.dart';
+import 'views/login_view.dart';
 import 'views/startup_view.dart';
 
 class PowerHrApp extends StatefulWidget {
-  const PowerHrApp({required this.provider, super.key});
+  const PowerHrApp({required this.provider, this.authProvider, super.key});
 
   final BackendStatusProvider provider;
+  final AuthProvider? authProvider;
 
   @override
   State<PowerHrApp> createState() => _PowerHrAppState();
@@ -22,6 +25,7 @@ class _PowerHrAppState extends State<PowerHrApp> {
   @override
   void dispose() {
     widget.provider.dispose();
+    widget.authProvider?.dispose();
     super.dispose();
   }
 
@@ -38,7 +42,18 @@ class _PowerHrAppState extends State<PowerHrApp> {
         ),
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: StartupView(provider: widget.provider),
+      home: Builder(
+        builder: (context) => StartupView(
+          provider: widget.provider,
+          onLogin: widget.authProvider == null
+              ? null
+              : () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => LoginView(provider: widget.authProvider!),
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }

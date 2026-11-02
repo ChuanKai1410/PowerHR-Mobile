@@ -3,9 +3,10 @@ import 'package:flutter/material.dart' hide ConnectionState;
 import '../providers/backend_status_provider.dart';
 
 class StartupView extends StatelessWidget {
-  const StartupView({required this.provider, super.key});
+  const StartupView({required this.provider, this.onLogin, super.key});
 
   final BackendStatusProvider provider;
+  final VoidCallback? onLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +77,15 @@ class StartupView extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(provider.status?.environment ?? 'Not available'),
+                      if (onLogin != null) ...[
+                        const SizedBox(height: 32),
+                        FilledButton(
+                          onPressed: provider.state == ConnectionState.connected
+                              ? onLogin
+                              : null,
+                          child: const Text('Continue to login'),
+                        ),
+                      ],
                     ],
                   ),
                 ),
