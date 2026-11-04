@@ -4,7 +4,6 @@ import '../providers/auth_provider.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({required this.provider, super.key});
-
   final AuthProvider provider;
 
   @override
@@ -41,8 +40,9 @@ class _LoginViewState extends State<LoginView> {
           listenable: widget.provider,
           builder: (context, _) {
             final provider = widget.provider;
-            if (provider.state == AuthState.authenticated) {
-              final user = provider.session!;
+            if (provider.state == AuthState.authenticated &&
+                provider.identity != null) {
+              final user = provider.identity!;
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -54,7 +54,7 @@ class _LoginViewState extends State<LoginView> {
                       const Text('Signed in successfully'),
                       const SizedBox(height: 8),
                       Text(user.email, textAlign: TextAlign.center),
-                      Text('Role: ${user.role}'),
+                      Text('Role / job title: ${user.role}'),
                       const SizedBox(height: 20),
                       FilledButton(
                         onPressed: provider.logout,
@@ -65,8 +65,12 @@ class _LoginViewState extends State<LoginView> {
                 ),
               );
             }
-
-            final busy = provider.state == AuthState.signingIn;
+            final busy =
+                provider.state == AuthState.signingIn ||
+                provider.state == AuthState.restoring;
+            if (busy) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -83,11 +87,32 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         const SizedBox(height: 8),
                         const Text('Use an existing PowerHR test account.'),
+                        if (provider.errorMessage != null) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            provider.errorMessage!,
+                            key: const Key('login-error'),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ],
+                        if (provider.state ==
+                            AuthState.verificationUnavailable) ...[
+                          const SizedBox(height: 8),
+                          OutlinedButton(
+                            onPressed: provider.restore,
+                            child: const Text('Retry session verification'),
+                          ),
+                          OutlinedButton(
+                            onPressed: provider.logout,
+                            child: const Text('Clear stored session'),
+                          ),
+                        ],
                         const SizedBox(height: 24),
                         TextFormField(
                           key: const Key('login-email'),
                           controller: _email,
-                          enabled: !busy,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           autofillHints: const [AutofillHints.email],
@@ -104,7 +129,6 @@ class _LoginViewState extends State<LoginView> {
                         TextFormField(
                           key: const Key('login-password'),
                           controller: _password,
-                          enabled: !busy,
                           obscureText: _obscurePassword,
                           textInputAction: TextInputAction.done,
                           autofillHints: const [AutofillHints.password],
@@ -128,27 +152,15 @@ class _LoginViewState extends State<LoginView> {
                           validator: (value) => value == null || value.isEmpty
                               ? 'Enter your password.'
                               : null,
-                          onFieldSubmitted: (_) {
-                            if (!busy) _signIn();
-                          },
+                          onFieldSubmitted: (_) => _signIn(),
                         ),
-                        if (provider.errorMessage != null) ...[
-                          const SizedBox(height: 16),
-                          Text(
-                            provider.errorMessage!,
-                            key: const Key('login-error'),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ),
-                        ],
                         const SizedBox(height: 24),
                         FilledButton(
                           key: const Key('login-submit'),
-                          onPressed: busy ? null : _signIn,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            child: Text(busy ? 'Signing in...' : 'Sign in'),
+                          onPressed: _signIn,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            child: Text('Sign in'),
                           ),
                         ),
                       ],

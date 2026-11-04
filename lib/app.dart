@@ -20,6 +20,7 @@ class _PowerHrAppState extends State<PowerHrApp> {
   void initState() {
     super.initState();
     widget.provider.check();
+    widget.authProvider?.restore();
   }
 
   @override
