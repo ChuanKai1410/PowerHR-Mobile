@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../providers/auth_provider.dart';
+import 'workspace_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({required this.provider, super.key});
@@ -42,27 +43,9 @@ class _LoginViewState extends State<LoginView> {
             final provider = widget.provider;
             if (provider.state == AuthState.authenticated &&
                 provider.identity != null) {
-              final user = provider.identity!;
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.verified_user_outlined, size: 52),
-                      const SizedBox(height: 16),
-                      const Text('Signed in successfully'),
-                      const SizedBox(height: 8),
-                      Text(user.email, textAlign: TextAlign.center),
-                      Text('Role / job title: ${user.role}'),
-                      const SizedBox(height: 20),
-                      FilledButton(
-                        onPressed: provider.logout,
-                        child: const Text('Sign out'),
-                      ),
-                    ],
-                  ),
-                ),
+              return WorkspaceView(
+                identity: provider.identity!,
+                onSignOut: provider.logout,
               );
             }
             final busy =
