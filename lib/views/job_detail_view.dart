@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../models/job_listing.dart';
+import '../models/app_config.dart';
+import '../services/token_store.dart';
+import '../services/job_application_service.dart';
+import 'job_apply_panel.dart';
 
 class JobDetailView extends StatelessWidget {
   const JobDetailView({required this.job, super.key});
@@ -44,7 +48,16 @@ class JobDetailView extends StatelessWidget {
                   'Not specified',
             ),
             const SizedBox(height: 16),
-            const Text('Applications will be enabled in Phase 4 Part 3.'),
+            Builder(
+              builder: (context) {
+                final api = AppConfig.fromEnvironment().apiBaseUri;
+                if (api == null) return const Text('API is not configured.');
+                return JobApplyPanel(
+                  postingId: job.id,
+                  service: JobApplicationService(api, const SecureTokenStore()),
+                );
+              },
+            ),
           ],
         ),
       ),
