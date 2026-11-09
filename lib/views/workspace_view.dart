@@ -1,3 +1,6 @@
+import '../services/token_store.dart';
+import '../services/application_tracking_service.dart';
+import 'application_tracking_view.dart';
 import 'package:flutter/material.dart';
 import '../models/app_config.dart';
 import '../services/job_discovery_service.dart';
@@ -84,6 +87,33 @@ class WorkspaceView extends StatelessWidget {
                       ),
                     ),
                   if (destination == WorkspaceDestination.applicant) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      key: const Key('open-application-tracking'),
+                      icon: const Icon(Icons.fact_check_outlined),
+                      label: const Text('My applications'),
+                      onPressed: () {
+                        final api = AppConfig.fromEnvironment().apiBaseUri;
+                        if (api == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('API is not configured.'),
+                            ),
+                          );
+                          return;
+                        }
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => ApplicationTrackingView(
+                              service: ApplicationTrackingService(
+                                api,
+                                const SecureTokenStore(),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                     const SizedBox(height: 12),
                     FilledButton.icon(
                       key: const Key('open-job-discovery'),
