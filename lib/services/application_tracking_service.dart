@@ -14,9 +14,14 @@ class TrackingException implements Exception {
 }
 
 class TrackingPage {
-  const TrackingPage({required this.items, required this.hasMore});
+  const TrackingPage({
+    required this.items,
+    required this.hasMore,
+    this.total = 0,
+  });
   final List<ApplicationRecord> items;
   final bool hasMore;
+  final int total;
 }
 
 class ApplicationTrackingService {
@@ -95,7 +100,15 @@ class ApplicationTrackingService {
       }
       return ApplicationRecord.fromJson(row);
     }).toList();
-    return TrackingPage(items: items, hasMore: data['hasMore'] as bool);
+    final rawTotal = data['total'];
+    if (rawTotal is! int || rawTotal < items.length) {
+      throw const TrackingException('Invalid application response.');
+    }
+    return TrackingPage(
+      items: items,
+      hasMore: data['hasMore'] as bool,
+      total: rawTotal,
+    );
   }
 
   Future<ApplicationRecord> getDetails(String id) async {
