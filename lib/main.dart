@@ -5,6 +5,7 @@ import 'models/app_config.dart';
 import 'providers/auth_provider.dart';
 import 'providers/backend_status_provider.dart';
 import 'services/auth_service.dart';
+import 'services/applicant_profile_service.dart';
 import 'services/backend_service.dart';
 import 'services/session_service.dart';
 import 'services/token_store.dart';
@@ -18,6 +19,9 @@ void main() {
       provider: BackendStatusProvider(
         baseUri == null ? null : BackendService(baseUri),
       ),
+      profileService: baseUri == null
+          ? null
+          : ApplicantProfileService(baseUri, const SecureTokenStore()),
       authProvider: baseUri == null
           ? null
           : AuthProvider(

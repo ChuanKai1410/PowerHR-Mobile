@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../providers/auth_provider.dart';
+import '../services/applicant_profile_service.dart';
 import 'workspace_view.dart';
 
 class LoginView extends StatefulWidget {
-  const LoginView({required this.provider, super.key});
+  const LoginView({required this.provider, this.profileService, super.key});
   final AuthProvider provider;
+  final ApplicantProfileService? profileService;
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -46,6 +48,7 @@ class _LoginViewState extends State<LoginView> {
               return WorkspaceView(
                 identity: provider.identity!,
                 onSignOut: provider.logout,
+                profileService: widget.profileService,
               );
             }
             final busy =

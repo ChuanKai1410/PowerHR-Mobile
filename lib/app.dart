@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/backend_status_provider.dart';
+import 'services/applicant_profile_service.dart';
 import 'views/login_view.dart';
 import 'views/startup_view.dart';
 
 class PowerHrApp extends StatefulWidget {
-  const PowerHrApp({required this.provider, this.authProvider, super.key});
+  const PowerHrApp({
+    required this.provider,
+    this.authProvider,
+    this.profileService,
+    super.key,
+  });
 
   final BackendStatusProvider provider;
   final AuthProvider? authProvider;
+  final ApplicantProfileService? profileService;
 
   @override
   State<PowerHrApp> createState() => _PowerHrAppState();
@@ -50,7 +57,10 @@ class _PowerHrAppState extends State<PowerHrApp> {
               ? null
               : () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (_) => LoginView(provider: widget.authProvider!),
+                    builder: (_) => LoginView(
+                      provider: widget.authProvider!,
+                      profileService: widget.profileService,
+                    ),
                   ),
                 ),
         ),
