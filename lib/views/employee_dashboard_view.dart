@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/company_admin_service.dart';
+import 'company_admin_view.dart';
+
 import '../services/hr_recruitment_service.dart';
 import 'hr_recruitment_view.dart';
 
@@ -120,6 +123,28 @@ class EmployeeDashboardView extends StatelessWidget {
                     MaterialPageRoute<void>(
                       builder: (_) => HrRecruitmentView(
                         service: HrRecruitmentService(
+                          api,
+                          const SecureTokenStore(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (identity.jobTitle == 'Admin' &&
+                AppConfig.fromEnvironment().apiBaseUri != null) ...[
+              FilledButton.icon(
+                key: const Key('employee-company-admin'),
+                icon: const Icon(Icons.manage_accounts_outlined),
+                label: const Text('Manage company'),
+                onPressed: () {
+                  final api = AppConfig.fromEnvironment().apiBaseUri!;
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => CompanyAdminView(
+                        service: CompanyAdminService(
                           api,
                           const SecureTokenStore(),
                         ),
