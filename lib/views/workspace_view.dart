@@ -7,6 +7,7 @@ import '../services/application_tracking_service.dart';
 import '../services/job_discovery_service.dart';
 import '../services/token_store.dart';
 import 'applicant_dashboard_view.dart';
+import 'employee_dashboard_view.dart';
 
 class WorkspaceView extends StatelessWidget {
   const WorkspaceView({
@@ -32,6 +33,9 @@ class WorkspaceView extends StatelessWidget {
         profileService: profileService,
         onSignOut: onSignOut,
       );
+    }
+    if (destination == WorkspaceDestination.employee) {
+      return EmployeeDashboardView(identity: identity, onSignOut: onSignOut);
     }
     final title = switch (destination) {
       WorkspaceDestination.applicant => 'Applicant Workspace',
