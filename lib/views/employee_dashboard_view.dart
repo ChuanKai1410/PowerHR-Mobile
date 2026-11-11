@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../models/auth_identity.dart';
+import '../models/app_config.dart';
+import '../services/token_store.dart';
+import '../services/employee_company_service.dart';
+import 'employee_company_view.dart';
 
 /// Employee-only landing page. UI labels are not authorization decisions.
 /// Privileged HR/admin actions are deliberately not enabled in this phase.
@@ -81,6 +85,27 @@ class EmployeeDashboardView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            if (AppConfig.fromEnvironment().apiBaseUri != null) ...[
+              OutlinedButton.icon(
+                key: const Key('employee-my-company'),
+                onPressed: () {
+                  final api = AppConfig.fromEnvironment().apiBaseUri!;
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => EmployeeCompanyView(
+                        service: EmployeeCompanyService(
+                          api,
+                          const SecureTokenStore(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.apartment_outlined),
+                label: const Text('My company'),
+              ),
+              const SizedBox(height: 12),
+            ],
             Text('Workspace', style: theme.textTheme.titleLarge),
             const SizedBox(height: 10),
             if (isHr) ...[
