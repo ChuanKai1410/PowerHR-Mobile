@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/hr_recruitment_service.dart';
+import 'hr_recruitment_view.dart';
 
 import '../models/auth_identity.dart';
 import '../models/app_config.dart';
@@ -103,6 +105,28 @@ class EmployeeDashboardView extends StatelessWidget {
                 },
                 icon: const Icon(Icons.apartment_outlined),
                 label: const Text('My company'),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (identity.jobTitle == 'HR' &&
+                AppConfig.fromEnvironment().apiBaseUri != null) ...[
+              FilledButton.icon(
+                key: const Key('employee-hr-recruitment'),
+                icon: const Icon(Icons.work_outline),
+                label: const Text('Manage recruitment'),
+                onPressed: () {
+                  final api = AppConfig.fromEnvironment().apiBaseUri!;
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => HrRecruitmentView(
+                        service: HrRecruitmentService(
+                          api,
+                          const SecureTokenStore(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 12),
             ],
