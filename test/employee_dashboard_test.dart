@@ -9,6 +9,7 @@ AuthIdentity employee(String title) => AuthIdentity(
   role: 'Employee',
   accountType: AccountType.employee,
   jobTitle: title,
+  company: 'company-a',
 );
 
 void main() {
@@ -18,14 +19,14 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: EmployeeDashboardView(
-          identity: employee('hr'),
+          identity: employee('HR'),
           onSignOut: () async {},
         ),
       ),
     );
     expect(find.byKey(const Key('employee-hr-module')), findsOneWidget);
     expect(find.byKey(const Key('employee-admin-module')), findsNothing);
-    expect(find.text('Planned'), findsOneWidget);
+    expect(find.text('Available'), findsOneWidget);
     expect(find.byKey(const Key('employee-scope-notice')), findsOneWidget);
   });
 
@@ -35,7 +36,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: EmployeeDashboardView(
-          identity: employee('admin'),
+          identity: employee('Admin'),
           onSignOut: () async {},
         ),
       ),
@@ -63,7 +64,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: EmployeeDashboardView(
-          identity: employee('hr'),
+          identity: employee('HR'),
           onSignOut: () async {
             count++;
           },

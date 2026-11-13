@@ -6,13 +6,14 @@ import '../services/hr_recruitment_service.dart';
 import 'hr_recruitment_view.dart';
 
 import '../models/auth_identity.dart';
+import '../models/employee_navigation_policy.dart';
 import '../models/app_config.dart';
 import '../services/token_store.dart';
 import '../services/employee_company_service.dart';
 import 'employee_company_view.dart';
 
 /// Employee-only landing page. UI labels are not authorization decisions.
-/// Privileged HR/admin actions are deliberately not enabled in this phase.
+/// Server-authorized HR/Admin actions are available via their existing modules.
 class EmployeeDashboardView extends StatelessWidget {
   const EmployeeDashboardView({
     required this.identity,
@@ -28,13 +29,9 @@ class EmployeeDashboardView extends StatelessWidget {
     final theme = Theme.of(context);
     final title = identity.jobTitle?.trim() ?? '';
     final displayTitle = title.isEmpty ? 'Employee' : title;
-    final normalizedTitle = title.toLowerCase();
-    final isHr =
-        normalizedTitle == 'hr' ||
-        normalizedTitle == 'hr manager' ||
-        normalizedTitle == 'human resources';
-    final isAdmin =
-        normalizedTitle == 'admin' || normalizedTitle == 'company admin';
+    final navigation = EmployeeNavigationPolicy.fromIdentity(identity);
+    final isHr = navigation.canOpenRecruitment;
+    final isAdmin = navigation.canOpenAdministration;
 
     return Scaffold(
       appBar: AppBar(
@@ -90,7 +87,8 @@ class EmployeeDashboardView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            if (AppConfig.fromEnvironment().apiBaseUri != null) ...[
+            if (navigation.canOpenCompany &&
+                AppConfig.fromEnvironment().apiBaseUri != null) ...[
               OutlinedButton.icon(
                 key: const Key('employee-my-company'),
                 onPressed: () {
@@ -111,7 +109,7 @@ class EmployeeDashboardView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
             ],
-            if (identity.jobTitle == 'HR' &&
+            if (navigation.canOpenRecruitment &&
                 AppConfig.fromEnvironment().apiBaseUri != null) ...[
               FilledButton.icon(
                 key: const Key('employee-hr-recruitment'),
@@ -133,7 +131,7 @@ class EmployeeDashboardView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
             ],
-            if (identity.jobTitle == 'Admin' &&
+            if (navigation.canOpenAdministration &&
                 AppConfig.fromEnvironment().apiBaseUri != null) ...[
               FilledButton.icon(
                 key: const Key('employee-company-admin'),
@@ -163,7 +161,8 @@ class EmployeeDashboardView extends StatelessWidget {
                 icon: Icons.people_outline,
                 title: 'Recruitment management',
                 description:
-                    'HR features will be connected after server-side scope verification.',
+                    'Open Manage recruitment to review job postings and applications.',
+                status: 'Available',
               ),
             ] else if (isAdmin) ...[
               const _UpcomingModule(
@@ -171,7 +170,8 @@ class EmployeeDashboardView extends StatelessWidget {
                 icon: Icons.apartment_outlined,
                 title: 'Company administration',
                 description:
-                    'Admin features will be connected after server-side scope verification.',
+                    'Open Manage company to view employees and manage departments.',
+                status: 'Available',
               ),
             ] else ...[
               const _UpcomingModule(
@@ -221,12 +221,14 @@ class _UpcomingModule extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.description,
+    this.status = 'Planned',
     super.key,
   });
 
   final IconData icon;
   final String title;
   final String description;
+  final String status;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -234,7 +236,7 @@ class _UpcomingModule extends StatelessWidget {
       leading: Icon(icon, size: 30),
       title: Text(title),
       subtitle: Text(description),
-      trailing: const Chip(label: Text('Planned')),
+      trailing: Chip(label: Text(status)),
     ),
   );
 }
